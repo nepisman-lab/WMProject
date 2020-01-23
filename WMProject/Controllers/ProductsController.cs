@@ -7,12 +7,14 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using WMProject.Models;
+using WMProject.Models.Services;
 
 namespace WMProject.Controllers
 {
     public class ProductsController : Controller
     {
         private WMProjectContext db = new WMProjectContext();
+		private JsonServices jsonServices = new JsonServices();
 
         // GET: Products
         public ActionResult Index()
@@ -20,8 +22,15 @@ namespace WMProject.Controllers
             return View(db.Products.ToList());
         }
 
-        // GET: Products/Create
-        public ActionResult Create()
+		public ActionResult JsonIndex()
+		{
+			var products = jsonServices.Deserialize();
+						   
+			return View(products);
+		}
+
+		// GET: Products/Create
+		public ActionResult Create()
         {
             return View();
         }
@@ -35,6 +44,10 @@ namespace WMProject.Controllers
             {
                 db.Products.Add(product);
                 db.SaveChanges();
+			
+				var jsonString = jsonServices.Serialize(db.Products.ToList());
+				jsonServices.AddDataToJsonFile(jsonString);
+
                 return RedirectToAction("Index");
             }
 
@@ -65,7 +78,11 @@ namespace WMProject.Controllers
             {
                 db.Entry(product).State = EntityState.Modified;
                 db.SaveChanges();
-                return RedirectToAction("Index");
+
+				var jsonString = jsonServices.Serialize(db.Products.ToList());
+				jsonServices.AddDataToJsonFile(jsonString);
+
+				return RedirectToAction("Index");
             }
             return View(product);
         }
