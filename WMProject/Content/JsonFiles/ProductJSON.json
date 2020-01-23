@@ -1,0 +1,22 @@
+[
+	{
+		"Id" : 1,
+		"ProductName" : "Coca Cola Zero",
+		"Description" : "Refreshing beverage",
+		"Category" : "Beverage",
+		"Manufacturer" : "Coca Cola",
+		"Supplier" : "Supplier1",
+		"Price" : 0.89
+	},
+
+	{
+		"Id": 2,
+		"ProductName": "Fanta",
+		"Description": "Refreshing beverage",
+		"Category": "Beverage",
+		"Manufacturer": "Coca Cola",
+		"Supplier": "Supplier2",
+		"Price": 0.79
+	}
+
+]
