@@ -20,6 +20,7 @@ namespace WMProject.Models.Services
 		public string Serialize(List<Product> products)
 			=> JsonConvert.SerializeObject(products, Formatting.Indented);
 
-	
+		public List<Product> Deserialize()
+			=> JsonConvert.DeserializeObject<List<Product>>(GetJsonString());
 	}
 }

@@ -22,6 +22,7 @@ namespace WMProject.Controllers
             return View(db.Products.ToList());
         }
 
+		// GET: JsonProducts
 		public ActionResult JsonIndex()
 		{
 			var products = jsonServices.Deserialize();
@@ -36,6 +37,7 @@ namespace WMProject.Controllers
         }
 
         // POST: Products/Create
+		//Adds new product in both database and in jsonFile.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "Id,ProductName,Description,Category,Manufacturer,Supplier,Price")] Product product)
@@ -44,8 +46,11 @@ namespace WMProject.Controllers
             {
                 db.Products.Add(product);
                 db.SaveChanges();
-			
-				var jsonString = jsonServices.Serialize(db.Products.ToList());
+
+				var products = jsonServices.Deserialize();
+				products.Add(product);
+
+				var jsonString = jsonServices.Serialize(products);
 				jsonServices.AddDataToJsonFile(jsonString);
 
                 return RedirectToAction("Index");
@@ -78,17 +83,47 @@ namespace WMProject.Controllers
             {
                 db.Entry(product).State = EntityState.Modified;
                 db.SaveChanges();
-
-				var jsonString = jsonServices.Serialize(db.Products.ToList());
-				jsonServices.AddDataToJsonFile(jsonString);
-
+			
 				return RedirectToAction("Index");
             }
             return View(product);
         }
 
+		// GET: Products/JsonEdit/5
+		public ActionResult JsonEdit(int? id)
+		{
+			if (id == null)
+			{
+				return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+			}
+			var product = jsonServices.Deserialize().FirstOrDefault(p => p.Id == id);
+			if (product == null)
+			{
+				return HttpNotFound();
+			}
+			return View(product);
+		}
 
-        protected override void Dispose(bool disposing)
+		// POST: Products/JsonEdit/5       
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public ActionResult JsonEdit([Bind(Include = "Id,ProductName,Description,Category,Manufacturer,Supplier,Price")] Product product)
+		{
+			if (ModelState.IsValid)
+			{
+				var products = jsonServices.Deserialize();
+				products.Remove(products.FirstOrDefault(p => p.Id == product.Id));
+				products.Insert(product.Id - 1, product);
+
+				var jsonString = jsonServices.Serialize(products);
+				jsonServices.AddDataToJsonFile(jsonString);
+
+				return RedirectToAction("JsonIndex");
+			}
+			return View(product);
+		}
+
+		protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
